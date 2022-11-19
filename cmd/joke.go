@@ -34,6 +34,18 @@ type JokeStructTwopart struct {
 	Safe     bool   `json:"safe"`
 }
 
+type ArrayJokes struct {
+	Error  bool         `json:"error"`
+	Amount int          `json:"amount"`
+	Jokes  []JokeStruct `json:"jokes"`
+}
+
+type ArrayJokesTwoParts struct {
+	Error  bool                `json:"error"`
+	Amount int                 `json:"amount"`
+	Jokes  []JokeStructTwopart `json:"jokes"`
+}
+
 // handling output err
 func (joke JokeStructTwopart) PrintOutput() {
 	if !joke.Error {
@@ -72,19 +84,43 @@ var joke = &cobra.Command{
 		category, _ := cmd.Flags().GetString("category")
 		ty, _ := cmd.Flags().GetBool("type")
 		url := formUrl(category, counts, ty)
-		fmt.Printf("--> Api: %v \n", url)
+		fmt.Printf("--> Api: %v \n \n", url)
 		b := GetJoke(url)
 		var jokeSingle JokeStruct
 		var jokeTwopart JokeStructTwopart
-		if ty {
-			err := json.Unmarshal(b, &jokeTwopart)
-			HandleError(err, "Failed to decode the json object")
-			printerOfOutput(jokeTwopart)
-		}
-		if !ty {
-			err := json.Unmarshal(b, &jokeSingle)
-			HandleError(err, "Failed to decode the json object")
-			printerOfOutput(jokeSingle)
+		if counts == 1 {
+			if ty {
+				err := json.Unmarshal(b, &jokeTwopart)
+				HandleError(err, "Failed to decode the json object")
+				printerOfOutput(jokeTwopart)
+			}
+			if !ty {
+				err := json.Unmarshal(b, &jokeSingle)
+				HandleError(err, "Failed to decode the json object")
+				printerOfOutput(jokeSingle)
+			}
+
+		} else {
+			if !ty {
+				var arrayjokeSingle ArrayJokes
+				err := json.Unmarshal(b, &arrayjokeSingle)
+				HandleError(err, "Failed to decode the json object")
+				for i, e := range arrayjokeSingle.Jokes {
+					fmt.Printf("--------Joke: %v --------\n", i+1)
+					printerOfOutput(e)
+					fmt.Println()
+				}
+			}
+			if ty {
+				var arrayjokeTwopart ArrayJokesTwoParts
+				err := json.Unmarshal(b, &arrayjokeTwopart)
+				HandleError(err, "Failed to decode the json object")
+				for i, e := range arrayjokeTwopart.Jokes {
+					fmt.Printf("-------Joke: %v --------\n", i+1)
+					printerOfOutput(e)
+					fmt.Println()
+				}
+			}
 		}
 	},
 }
@@ -110,7 +146,7 @@ func createAmount(jokeCount int) string {
 	if jokeCount == 1 {
 		return ""
 	} else {
-		return "?amount=" + strconv.Itoa(jokeCount)
+		return "&amount=" + strconv.Itoa(jokeCount)
 	}
 }
 func createJokeType(jokeType bool) string {
