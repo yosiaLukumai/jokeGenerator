@@ -1,5 +1,13 @@
 ## JokeGenerator is a simple cli for generating jokes
 it illustrate usage of cobra and playing with json, it a silly project i did while tring to consume api's and playing with json.
+
+## Note
+You have to install the dependencies and build and install binaries
+```
+go build 
+go install
+```
+
 ### Usage
 Run the sub-command joke and provide the specific flag for joke type (-t) and count (-c)
 ```
@@ -13,3 +21,8 @@ Running without passing the flag
 JokeGenerator joke
 ```
 it will fetch any joke basing on the any type
+
+## specifying the amount
+```
+JokeGenerator joke -a 3
+```
